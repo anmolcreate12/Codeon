@@ -11,49 +11,42 @@ const aiRouter = require('./routes/aiChatting')
 const videoRouter = require("./routes/videoCreator");
 const cors = require('cors')
 
+app.set('trust proxy', 1);
+
 app.use(cors({
-  origin: 'http://localhost:5173',
+  origin: [process.env.FRONTEND_URL, 'http://localhost:5173'],
   credentials: true
 }))
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-// convert req.body data into javascript object
 app.use(cookieParser())
 
-app.use('/user',authRouter);
-app.use('/problem',problemRouter);
+app.use('/user', authRouter);
+app.use('/problem', problemRouter);
 app.use('/submission', submitRouter)
 app.use('/ai', aiRouter)
-app.use("/video",videoRouter);
+app.use("/video", videoRouter);
 
 
-const InitializeConnection = async()=>{
- 
+const InitializeConnection = async () => {
 
-  try{
+  try {
 
     await Promise.all([main(), redisClient.connect()]);
     console.log("DB connected");
 
-    app.listen(process.env.PORT, () => {
-      console.log("Server listening at port number : " + process.env.PORT);
+    const PORT = process.env.PORT || 5000;
+    app.listen(PORT, () => {
+      console.log("Server listening at port number : " + PORT);
     })
 
   }
-  catch(err){
+  catch (err) {
 
-    console.log("Error : "+err.message);
+    console.log("Error : " + err.message);
 
   }
 }
 
 InitializeConnection();
-
- 
-
-
-
-
-
-
