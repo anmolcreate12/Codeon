@@ -8,11 +8,22 @@ import ChatAi from '../components/ChatAi';
 import Editorial from '../components/Editorial';
 
 const langMap = {
-        cpp: 'c++',
-        java: 'java',
-        javascript: 'javascript'
+  cpp: 'c++',
+  java: 'java',
+  javascript: 'javascript'
 };
 
+const getInitialCode = (startCodes, lang) => {
+  if (!startCodes || !Array.isArray(startCodes) || startCodes.length === 0) return '';
+  const target = (langMap[lang] || lang).toLowerCase();
+  const match = startCodes.find(sc => {
+    const scLang = (sc.language || '').toLowerCase();
+    return scLang === target || scLang === lang.toLowerCase() || 
+           (target === 'c++' && scLang === 'cpp') || 
+           (target === 'javascript' && scLang === 'js');
+  });
+  return match?.initialCode || startCodes[0]?.initialCode || '';
+};
 
 const ProblemPage = () => {
   const [problem, setProblem] = useState(null);
@@ -26,25 +37,19 @@ const ProblemPage = () => {
   const editorRef = useRef(null);
   let {problemId}  = useParams();
 
-  
-
   const { handleSubmit } = useForm();
 
- useEffect(() => {
+  useEffect(() => {
     const fetchProblem = async () => {
       setLoading(true);
       try {
-        
         const response = await axiosClient.get(`/problem/problemById/${problemId}`);
-       
+        const problemData = response.data;
+        setProblem(problemData);
         
-        const initialCode = response.data.startCode.find(sc => sc.language === langMap[selectedLanguage]).initialCode;
-
-        setProblem(response.data);
-        
+        const initialCode = getInitialCode(problemData.startCode, selectedLanguage);
         setCode(initialCode);
         setLoading(false);
-        
       } catch (error) {
         console.error('Error fetching problem:', error);
         setLoading(false);
@@ -57,7 +62,7 @@ const ProblemPage = () => {
   // Update code when language changes
   useEffect(() => {
     if (problem) {
-      const initialCode = problem.startCode.find(sc => sc.language === langMap[selectedLanguage]).initialCode;
+      const initialCode = getInitialCode(problem.startCode, selectedLanguage);
       setCode(initialCode);
     }
   }, [selectedLanguage, problem]);

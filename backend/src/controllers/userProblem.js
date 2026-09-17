@@ -48,7 +48,7 @@ const createProblem = async (req, res) => {
 
       for (const test of testResult) {
         if (test.status_id != 3) {
-          return res.status(400).send("Error Occured");
+          return res.status(400).json({ error: "Reference solution test failed", message: "Reference solution failed for some test cases" });
         }
       }
 
@@ -62,10 +62,10 @@ const createProblem = async (req, res) => {
       problemCreator: req.result._id
     });
 
-    res.status(201).send("Problem Saved Successfully");
+    res.status(201).json({ message: "Problem Saved Successfully", problem: userProblem });
   }
   catch (err) {
-    res.status(400).send("Error: " + err);
+    res.status(400).json({ error: err.message, message: err.message });
   }
 }
 
@@ -197,27 +197,18 @@ const getProblemById = async (req, res) => {
 }
 
 const getAllProblem = async (req, res) => {
-
   try {
-
     const getProblem = await Problem.find({}).select('_id title difficulty tags');
-
-    if (getProblem.length == 0)
-      return res.status(404).send("Problem is Missing");
-
-
-    res.status(200).send(getProblem);
+    res.status(200).json(getProblem || []);
   }
   catch (err) {
-    res.status(500).send("Error: " + err);
+    res.status(500).json({ error: err.message, message: "Error fetching problems" });
   }
 }
 
 
 const solvedAllProblembyUser = async (req, res) => {
-
   try {
-
     const userId = req.result._id;
 
     const user = await User.findById(userId).populate({
@@ -225,11 +216,10 @@ const solvedAllProblembyUser = async (req, res) => {
       select: "_id title difficulty tags"
     });
 
-    res.status(200).send(user.problemSolved);
-
+    res.status(200).json(user ? (user.problemSolved || []) : []);
   }
   catch (err) {
-    res.status(500).send("Server Error");
+    res.status(500).json({ error: err.message, message: "Server Error" });
   }
 }
 

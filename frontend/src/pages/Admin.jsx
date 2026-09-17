@@ -47,7 +47,13 @@ function Admin() {
   return (
     <div className="min-h-screen bg-base-200">
       <div className="container mx-auto px-4 py-8">
-        {/* Header */}
+        {/* Back Link & Header */}
+        <div className="flex justify-between items-center mb-6">
+          <NavLink to="/" className="btn btn-ghost btn-sm gap-2">
+            <Home size={18} />
+            Back to Home
+          </NavLink>
+        </div>
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-base-content mb-4">
             Admin Panel

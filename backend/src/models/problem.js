@@ -79,10 +79,10 @@ const problemSchema = new Schema({
     }
   ], 
   
-  problemCreater:{
+  problemCreator: {
     type: Schema.Types.ObjectId,
-    ref:'user',
-    required:true
+    ref: 'user',
+    required: true
   }
 })
 

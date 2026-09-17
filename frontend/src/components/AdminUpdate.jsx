@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import axiosClient from '../utils/axiosClient';
 
 function AdminUpdate() {
   const [problems, setProblems] = useState([]);
   const [selectedProblem, setSelectedProblem] = useState(null);
 
-  // fetch problems, let user pick one to edit
   useEffect(() => {
-    axios.get('/api/problems').then(res => setProblems(res.data));
+    axiosClient.get('/problem/getAllProblem')
+      .then(res => setProblems(res.data))
+      .catch(err => console.error(err));
   }, []);
 
   return (

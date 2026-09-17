@@ -59,13 +59,23 @@ function Homepage() {
           <NavLink to="/" className="btn btn-ghost text-xl">Codeon</NavLink>
         </div>
         <div className="flex-none gap-4">
+          {user?.role === 'admin' && (
+            <NavLink to="/admin" className="btn btn-outline btn-primary btn-sm">
+              Admin Panel
+            </NavLink>
+          )}
           <div className="dropdown dropdown-end">
-            <div tabIndex={0} className="btn btn-ghost">
+            <div tabIndex={0} className="btn btn-ghost flex items-center gap-2">
               {user?.firstName}
+              {user?.role === 'admin' && (
+                <span className="badge badge-primary badge-xs">Admin</span>
+              )}
             </div>
-            <ul className="mt-3 p-2 shadow menu menu-sm dropdown-content bg-base-100 rounded-box w-52">
+            <ul className="mt-3 p-2 shadow menu menu-sm dropdown-content bg-base-100 rounded-box w-52 z-50">
+              {user?.role === 'admin' && (
+                <li><NavLink to="/admin">Admin Panel</NavLink></li>
+              )}
               <li><button onClick={handleLogout}>Logout</button></li>
-              {user.role=='admin'&&<li><NavLink to="/admin">Admin</NavLink></li>}
             </ul>
           </div>
         </div>

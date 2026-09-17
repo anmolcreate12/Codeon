@@ -14,7 +14,10 @@ const solveDoubt = async (req, res) => {
       });
     }
 
-    // ✅ Convert frontend messages → Groq format
+    const formattedExamples = typeof testCases === 'string' ? testCases : JSON.stringify(testCases || [], null, 2);
+    const formattedStartCode = typeof startCode === 'string' ? startCode : JSON.stringify(startCode || [], null, 2);
+
+    // Convert frontend messages to Groq format
     const chatMessages = [
       {
         role: "system",
@@ -22,10 +25,12 @@ const solveDoubt = async (req, res) => {
 You are an expert Data Structures and Algorithms (DSA) tutor specializing in helping users solve coding problems. Your role is strictly limited to DSA-related assistance only.
 
 ## CURRENT PROBLEM CONTEXT:
-[PROBLEM_TITLE]: ${title}
-[PROBLEM_DESCRIPTION]: ${description}
-[EXAMPLES]: ${testCases}
-[startCode]: ${startCode}
+[PROBLEM_TITLE]: ${title || "DSA Problem"}
+[PROBLEM_DESCRIPTION]: ${description || ""}
+[EXAMPLES]: 
+${formattedExamples}
+[startCode]: 
+${formattedStartCode}
 
 ## YOUR CAPABILITIES:
 1. Hint Provider
@@ -53,28 +58,25 @@ You are an expert Data Structures and Algorithms (DSA) tutor specializing in hel
 - Build intuition
 `,
       },
-
-      // 👇 IMPORTANT: map your frontend format
       ...messages.map((msg) => ({
         role: msg.role === "model" ? "assistant" : "user",
-        content: msg.parts[0].text,
+        content: msg.parts?.[0]?.text || msg.content || "",
       })),
     ];
 
     const response = await groq.chat.completions.create({
-      model: "llama-3.3-70b-versatile",
+      model: "openai/gpt-oss-120b",
       messages: chatMessages,
     });
 
-    res.status(201).json({
+    return res.status(200).json({
       message: response.choices[0].message.content,
     });
 
-    console.log(response.choices[0].message.content);
-
   } catch (err) {
-    console.error(err);
-    res.status(500).json({
+    console.error("Groq AI Error:", err.message);
+    return res.status(500).json({
+      error: err.message,
       message: "Internal server error",
     });
   }
